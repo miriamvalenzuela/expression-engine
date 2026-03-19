@@ -55,6 +55,7 @@ vector<Token> infixToPostfix(const vector<Token>& tokens) {
 
 // Evaluation
 
+// Decision: use double division (no integer truncation)
 double evalPostfix(const vector<Token>& tokens) {
     ArrayStack<double> stack;
     // TODO
@@ -64,6 +65,20 @@ double evalPostfix(const vector<Token>& tokens) {
 // Main
 
 int main() {
+
+    // Temporary
+    // Test ArrayStack Implementation
+    // TODO: Delete test in next commit.
+    {
+        ArrayStack<int> s;
+        s.push(10);
+        s.push(20);
+        cout << "top should be 20: " << s.top() << endl;
+        s.pop();
+        cout << "top should be 10: " << s.top() << endl;
+        cout << "size should be 1: " << s.size() << endl;
+    }
+
     string line;
     getline(cin, line);
 
