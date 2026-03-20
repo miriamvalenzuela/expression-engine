@@ -16,9 +16,54 @@ struct Token {
 
 // Tokenizer
 
+bool isDigitChar(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool isOpChar(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/';
+}
+
+bool isParenChar(char c) {
+    return c == '(' || c == ')';
+}
+
 vector<Token> tokenize(const string& line) {
     vector<Token> tokens;
-    // TODO
+
+    int i = 0;
+    while (i < static_cast<int>(line.size())) {
+        char c = line[i];
+
+        if (isspace(static_cast<unsigned char>(c))) {
+            i++;
+            continue;
+        }
+
+        // number token
+        if (isDigitChar(c)) {
+            string num = "";
+            while (i < static_cast<int>(line.size()) && isDigitChar(line[i])) {
+                num += line[i];
+                i++;
+            }
+            tokens.push_back(Token{num});
+            continue;
+        }
+
+        // operator or parenthesis token
+        if (isOpChar(c) || isParenChar(c)) {
+            string s(1, c);
+            tokens.push_back(Token{s});
+            i++;
+            continue;
+        }
+
+        // invalid character
+        tokens.push_back(Token{"INVALID"});
+        return tokens;
+    }
+
     return tokens;
 }
 
@@ -66,23 +111,17 @@ double evalPostfix(const vector<Token>& tokens) {
 
 int main() {
 
-    // Temporary
-    // Test ArrayStack Implementation
-    // TODO: Delete test in next commit.
-    {
-        ArrayStack<int> s;
-        s.push(10);
-        s.push(20);
-        cout << "top should be 20: " << s.top() << endl;
-        s.pop();
-        cout << "top should be 10: " << s.top() << endl;
-        cout << "size should be 1: " << s.size() << endl;
-    }
 
     string line;
     getline(cin, line);
 
     vector<Token> tokens = tokenize(line);
+
+    // Temporary Test for Tokenize
+    // TODO: Delete test in next commit.
+    cout << "TOKENS: ";
+    for (const auto& t : tokens) cout << "[" << t.value << "] ";
+    cout << endl;
 
     if (isValidPostfix(tokens)) {
         cout << "FORMAT: POSTFIX\n";
