@@ -47,3 +47,22 @@ Each entry may be one of the following:
 **Commit(s):** `implement ArrayStack push/pop/top/empty/size with safe empty handling`
 
 ---
+
+### Entry 3
+**Date:** 2026-03-19  
+**Entry Type:** Bug Fix Entry  
+**Task worked on:** Tokenizer (`tokenize`) for numbers/operators/parentheses  
+**Issue or decision:** Expressions can be typed with or without spaces (ex: `3+4*2` vs `3 + 4 * 2`). Tokenization must correctly split numbers and single character operators/parentheses, and reject invalid characters.  
+**Error message / symptom (if applicable):** Initial tokenization attempts treated `3+4` as one token or failed to detect operators when there were no spaces.  
+**What I tried:** I tested multiple inputs:
+- `3+4*2`
+- `(3+4)*2`
+- `3 4 2 * +`
+- `3 + @ 4`  
+  and printed tokens to verify correct parsing.  
+ 
+**Fix / resolution (or final decision):** I updated tokenize to scan left to right, making sure to skip any whitespace, grouping consecutive numbers into one number token, and treating `+ - * / ( )` as single character tokens. If any other character appears, mark the expression invalid for detection.  
+  **Commit(s):** `implement tokenizer for numbers/operators/parentheses`
+
+---
+

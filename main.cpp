@@ -73,8 +73,27 @@ bool isOperator(const string& s) {
     return s == "+" || s == "-" || s == "*" || s == "/";
 }
 
+bool isNumber(const string& s) {
+    // If the string is empty, it can't be a number
+    if (s.empty()) {
+        return false;
+    }
+
+    // Check every character in the string
+    for (char c : s) {
+        // If any character is not a digit, it's not a number
+        if (!isdigit(static_cast<unsigned char>(c))) {
+            return false;
+        }
+    }
+
+    // All characters were digits, so it is a number
+    return true;
+}
+
 int precedence(const string& op) {
-    // TODO
+    if (op == "*" || op == "/") return 2;
+    if (op == "+" || op == "-") return 1;
     return 0;
 }
 
@@ -111,17 +130,10 @@ double evalPostfix(const vector<Token>& tokens) {
 
 int main() {
 
-
     string line;
     getline(cin, line);
 
     vector<Token> tokens = tokenize(line);
-
-    // Temporary Test for Tokenize
-    // TODO: Delete test in next commit.
-    cout << "TOKENS: ";
-    for (const auto& t : tokens) cout << "[" << t.value << "] ";
-    cout << endl;
 
     if (isValidPostfix(tokens)) {
         cout << "FORMAT: POSTFIX\n";
