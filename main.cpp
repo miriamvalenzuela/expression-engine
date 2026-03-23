@@ -100,8 +100,49 @@ int precedence(const string& op) {
 // Detection
 
 bool isValidPostfix(const vector<Token>& tokens) {
-    // TODO
-    return false;
+    // A postfix expression can't be empty
+    if (tokens.empty()) {
+        return false;
+    }
+
+    // Represents how many numbers/results currently "available"
+    int depth = 0;
+
+    for (const Token& token : tokens) {
+        string v = token.value;
+
+        // If the tokenizer marked something invalid, expression is invalid
+        if (v == "INVALID") {
+            return false;
+        }
+
+        // Parentheses are not allowed in postfix expressions
+        if (v == "(" || v == ")") {
+            return false;
+        }
+
+        // If it's a number, it adds one value to "stack"
+        if (isNumber(v)) {
+            depth++;
+        }
+        // If it's an operator, need two values to work
+        else if (isOperator(v)) {
+            if (depth < 2) {
+                return false; // not enough operands for this operator
+            }
+
+            // Using two operands and producing one result
+            // depth goes down by 1
+            depth--;
+        }
+        // Anything else is invalid
+        else {
+            return false;
+        }
+    }
+
+    // Valid post fix expression must end with exactly one final result
+    return depth == 1;
 }
 
 bool isValidInfix(const vector<Token>& tokens) {
@@ -134,6 +175,24 @@ int main() {
     getline(cin, line);
 
     vector<Token> tokens = tokenize(line);
+
+    // Temporary test for isValidPostfix
+    // TODO: Delete test in next commit
+    cout << "Your input tokens are: ";
+    for (const auto& t : tokens) {
+        cout << "[" << t.value << "] ";
+    }
+    cout << endl;
+
+    bool postfixOk = isValidPostfix(tokens);
+
+    cout << "Is this valid POSTFIX? ";
+    if (postfixOk) {
+        cout << "YES" << endl;
+    } else {
+        cout << "NO" << endl;
+    }
+    cout << "------------------------------\n" << endl;
 
     if (isValidPostfix(tokens)) {
         cout << "FORMAT: POSTFIX\n";
