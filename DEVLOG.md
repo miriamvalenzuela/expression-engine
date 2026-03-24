@@ -65,3 +65,19 @@ Each entry may be one of the following:
   **Commit(s):** `implement tokenizer for numbers/operators/parentheses`
 
 ---
+
+### Entry 4
+**Date:** 2026-03-23  
+**Entry Type:** Edge Case / Testing Entry  
+**Task worked on:** Postfix validation (`isValidPostfix`) + postfix evaluation (`evalPostfix`)  
+**Issue or decision:** Postfix needs validation before evaluation. Invalid postfix expressions should be classified as NEITHER, not partially evaluated.  
+**Error message / symptom (if applicable):** Expressions like `3 +` or `3 4 + +` cause stack underflow during evaluation if not validated first.  
+**What I tried:** I tested postfix validation using simulated stack depth rules on:
+- valid: `3 4 +`, `3 4 2 * +`
+- invalid: `3 +`, `3 4 + +`, `+ 3 4`, `3 4 ) +`
+
+Then I double-checked evaluation only runs after validation is successful.  
+**Fix / resolution (or final decision):** I implemented postfix validity using a depth counter: numbers increase depth, operators require depth ≥ 2 and reduce depth by 1. Parentheses immediately invalidate postfix. A postfix expression is valid only if final depth is exactly 1. Evaluation uses `ArrayStack<double>` and pops two operands for each operator. I also added extra stack-size checks to prevent any crashes.  
+**Commit(s):** `implement isValidPostfix using stack depth rules`, `implement evalPostfix using ArrayStack<double>`
+
+---

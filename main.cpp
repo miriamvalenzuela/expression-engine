@@ -163,8 +163,61 @@ vector<Token> infixToPostfix(const vector<Token>& tokens) {
 // Decision: use double division (no integer truncation)
 double evalPostfix(const vector<Token>& tokens) {
     ArrayStack<double> stack;
-    // TODO
-    return 0.0;
+
+    for (const Token& token : tokens) {
+        string v = token.value;
+
+        // If it's a number push it onto the stack
+        if (isNumber(v)) {
+            double number = stod(v);
+            stack.push(number);
+        }
+        // If it's an operator we need two numbers to apply it
+        else if (isOperator(v)) {
+            // Make sure there are at least 2 values available
+            if (stack.size() < 2) {
+                throw runtime_error("not enough operands for operator");
+            }
+
+            double right = stack.top();
+            stack.pop();
+
+            double left = stack.top();
+            stack.pop();
+
+            double answer = 0.0;
+
+            if (v == "+") {
+                answer = left + right;
+            } else if (v == "-") {
+                answer = left - right;
+            } else if (v == "*") {
+                answer = left * right;
+            } else if (v == "/") {
+                if (right == 0.0) {
+                    throw runtime_error("division by zero");
+                }
+                answer = left / right; // double division
+            } else {
+                // This should not happen if isOperator is correct
+                throw runtime_error("unknown operator");
+            }
+
+            // Push the result back on the stack
+            stack.push(answer);
+        }
+        // Anything else is invalid in postfix evaluation
+        else {
+            throw runtime_error("invalid token in evalPostfix");
+        }
+    }
+
+    // At the end, there should be exactly one result left
+    if (stack.size() != 1) {
+        throw runtime_error("postfix expression did not end with one result");
+    }
+
+    return stack.top();
 }
 
 // Main
@@ -176,23 +229,17 @@ int main() {
 
     vector<Token> tokens = tokenize(line);
 
-    // Temporary test for isValidPostfix
-    // TODO: Delete test in next commit
-    cout << "Your input tokens are: ";
-    for (const auto& t : tokens) {
-        cout << "[" << t.value << "] ";
+    // Temporary test for evalPostfix
+    // TODO: Remove test in next commit
+    if (isValidPostfix(tokens)) {
+        try {
+            double result = evalPostfix(tokens);
+            cout << "[TEST] evalPostfix result = " << result << endl;
+        }
+        catch (const exception& e) {
+            cout << "[TEST] evalPostfix threw error: " << e.what() << endl;
+        }
     }
-    cout << endl;
-
-    bool postfixOk = isValidPostfix(tokens);
-
-    cout << "Is this valid POSTFIX? ";
-    if (postfixOk) {
-        cout << "YES" << endl;
-    } else {
-        cout << "NO" << endl;
-    }
-    cout << "------------------------------\n" << endl;
 
     if (isValidPostfix(tokens)) {
         cout << "FORMAT: POSTFIX\n";
