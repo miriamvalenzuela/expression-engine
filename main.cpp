@@ -146,8 +146,68 @@ bool isValidPostfix(const vector<Token>& tokens) {
 }
 
 bool isValidInfix(const vector<Token>& tokens) {
-    // TODO
-    return false;
+    // Empty input cannot be a valid infix expression
+    if (tokens.empty()) {
+        return false;
+    }
+
+    // Track parentheses, must never go negative, must end at 0
+    int openParens = 0;
+
+    // At the start ( and after an operator or "(" ) we expect a number or "("
+    bool expectNumberOrLeftParen = true;
+
+    for (const Token& token : tokens) {
+        string v = token.value;
+
+        // Tokenizer found an invalid character earlier
+        if (v == "INVALID") {
+            return false;
+        }
+
+        if (expectNumberOrLeftParen) {
+            // Expecting number or "("
+            if (isNumber(v)) {
+                expectNumberOrLeftParen = false;  // Next expect operator or ")" or end
+            }
+            else if (v == "(") {
+                openParens++;
+                // Still expect number or "(" next
+            }
+            else {
+                return false; // Invalid order
+            }
+        }
+        else {
+            // Expecting operator or ")" ( or end )
+            if (isOperator(v)) {
+                expectNumberOrLeftParen = true;   // After an operator, need a number or "("
+            }
+            else if (v == ")") {
+                openParens--;
+                if (openParens < 0) {
+                    return false; // Too many closing parentheses
+                }
+                // After ")", still expect operator or ")" or end
+            }
+            else {
+                return false; // Invalid order
+            }
+        }
+    }
+
+    // Parentheses must balance out
+    if (openParens != 0) {
+        return false;
+    }
+
+    // Expression must end after a number or ")"
+    // If still expecting a number/"(", it means it ended with an operator or "("
+    if (expectNumberOrLeftParen) {
+        return false;
+    }
+
+    return true;
 }
 
 // Conversion
@@ -229,16 +289,21 @@ int main() {
 
     vector<Token> tokens = tokenize(line);
 
-    // Temporary test for evalPostfix
-    // TODO: Remove test in next commit
-    if (isValidPostfix(tokens)) {
-        try {
-            double result = evalPostfix(tokens);
-            cout << "[TEST] evalPostfix result = " << result << endl;
-        }
-        catch (const exception& e) {
-            cout << "[TEST] evalPostfix threw error: " << e.what() << endl;
-        }
+    // Temporary test for isValidInfix
+    // TODO: Delete test in next commit
+    cout << "Tokens: ";
+    for (const auto& t : tokens) {
+        cout << "[" << t.value << "] ";
+    }
+    cout << endl;
+
+    bool infixOk = isValidInfix(tokens);
+
+    cout << "Is this valid INFIX? ";
+    if (infixOk) {
+        cout << "YES" << endl;
+    } else {
+        cout << "NO" << endl;
     }
 
     if (isValidPostfix(tokens)) {
