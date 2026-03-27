@@ -81,3 +81,20 @@ Then I double-checked evaluation only runs after validation is successful.
 **Commit(s):** `implement isValidPostfix using stack depth rules`, `implement evalPostfix using ArrayStack<double>`
 
 ---
+
+### Entry 5
+**Date:** 2026-03-27  
+**Entry Type:** Bug Fix Entry  
+**Task worked on:** Converting infix to postfix (`infixToPostfix`) using the Shunting-Yard idea  
+**Issue or decision:** I had to make sure my infix-to-postfix conversion handled operator precedence correctly (* and / before + and -) and also handled left-to-right order for operators with the same precedence (left-associative). The tricky part was deciding when to pop operators off the stack.  
+**Error message / symptom (if applicable):** My first version sometimes gave the wrong postfix order. That caused wrong final answers for some expressions. For example, `3 - 2 - 1` could accidentally act like `3 - (2 - 1)` instead of the correct `(3 - 2) - 1`.  
+**What I tried:** I tested a few expressions where precedence/order matters:
+- `3 + 4 * 2` should become `3 4 2 * +`
+- `(3 + 4) * 2` should become `3 4 + 2 *`
+- `3 - 2 - 1` should become `3 2 - 1 -` (because subtraction goes left-to-right)  
+  I printed out the postfix tokens to compare them with what I expected.  
+
+**Fix / resolution (or final decision):** I fixed my popping logic so that when I see a new operator, I keep popping from the operator stack while the top operator has higher OR equal precedence. I used `>=` (not just `>`) because all operators are left-associative in this assignment. That made the postfix output and final evaluation match expected results.  
+**Commit(s):** `implement infixToPostfix (Shunting Yard) using ArrayStack<Token>`
+
+---

@@ -213,9 +213,72 @@ bool isValidInfix(const vector<Token>& tokens) {
 // Conversion
 
 vector<Token> infixToPostfix(const vector<Token>& tokens) {
-    vector<Token> output;
-    // TODO
-    return output;
+    vector<Token> postfix;
+    ArrayStack<Token> opStack;   // Holds operators and "("
+
+    for (const Token& token : tokens) {
+        string v = token.value;
+
+        // If it's a number, it goes straight to output
+        if (isNumber(v)) {
+            postfix.push_back(token);
+        }
+
+        // If it's "(", push it onto the operator stack
+        else if (v == "(") {
+            opStack.push(token);
+        }
+
+        // If it's ")", pop until we find "("
+        else if (v == ")") {
+            while (!opStack.empty() && opStack.top().value != "(") {
+                postfix.push_back(opStack.top());
+                opStack.pop();
+            }
+
+            // Remove the "(" from the stack ( if it exists )
+            if (!opStack.empty() && opStack.top().value == "(") {
+                opStack.pop();
+            }
+        }
+
+        // If it's an operator, pop operators that should come before it
+        else if (isOperator(v)) {
+            // While the stack top is an operator with >= precedence, pop it
+            while (!opStack.empty()) {
+                string topVal = opStack.top().value;
+
+                if (!isOperator(topVal)) {
+                    break; // Stop if top isn't an operator ( probably "(" )
+                }
+
+                if (precedence(topVal) >= precedence(v)) {
+                    postfix.push_back(opStack.top());
+                    opStack.pop();
+                } else {
+                    break;
+                }
+            }
+
+            // Push the current operator
+            opStack.push(token);
+        }
+
+        // If reaches here it means token is unexpected
+        // ( shouldn't happen if isValidInfix was checked first )
+        else {
+            postfix.clear();
+            return postfix;
+        }
+    }
+
+    // Pop any remaining operators from the stack
+    while (!opStack.empty()) {
+        postfix.push_back(opStack.top());
+        opStack.pop();
+    }
+
+    return postfix;
 }
 
 // Evaluation
@@ -289,21 +352,17 @@ int main() {
 
     vector<Token> tokens = tokenize(line);
 
-    // Temporary test for isValidInfix
-    // TODO: Delete test in next commit
-    cout << "Tokens: ";
-    for (const auto& t : tokens) {
-        cout << "[" << t.value << "] ";
-    }
-    cout << endl;
+    // Temporary test for infixToPostfix
+    // TODO: Remove test in next commit
+    if (isValidInfix(tokens)) {
+        vector<Token> pf = infixToPostfix(tokens);
 
-    bool infixOk = isValidInfix(tokens);
-
-    cout << "Is this valid INFIX? ";
-    if (infixOk) {
-        cout << "YES" << endl;
-    } else {
-        cout << "NO" << endl;
+        cout << "Postfix result: ";
+        for (int i = 0; i < static_cast<int>(pf.size()); i++) {
+            cout << pf[i].value;
+            if (i + 1 < static_cast<int>(pf.size())) cout << " ";
+        }
+        cout << endl;
     }
 
     if (isValidPostfix(tokens)) {
