@@ -97,6 +97,23 @@ int precedence(const string& op) {
     return 0;
 }
 
+void printTokens(const vector<Token>& tokens) {
+    for (int i = 0; i < static_cast<int>(tokens.size()); i++) {
+        cout << tokens[i].value;
+        if (i + 1 < static_cast<int>(tokens.size())) cout << " ";
+    }
+}
+
+bool hasInvalidToken(const vector<Token>& tokens) {
+    for (const Token& token : tokens) {
+        if (token.value == "INVALID") {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Detection
 
 bool isValidPostfix(const vector<Token>& tokens) {
@@ -352,20 +369,12 @@ int main() {
 
     vector<Token> tokens = tokenize(line);
 
-    // Temporary test for infixToPostfix
-    // TODO: Remove test in next commit
-    if (isValidInfix(tokens)) {
-        vector<Token> pf = infixToPostfix(tokens);
-
-        cout << "Postfix result: ";
-        for (int i = 0; i < static_cast<int>(pf.size()); i++) {
-            cout << pf[i].value;
-            if (i + 1 < static_cast<int>(pf.size())) cout << " ";
-        }
-        cout << endl;
+    if (hasInvalidToken(tokens)) {
+        cout << "FORMAT: NEITHER\n";
+        cout << "ERROR: invalid expression\n";
+        return 0;
     }
-
-    if (isValidPostfix(tokens)) {
+    else if (isValidPostfix(tokens)) {
         cout << "FORMAT: POSTFIX\n";
         cout << "RESULT: " << evalPostfix(tokens) << "\n";
     }
@@ -373,9 +382,7 @@ int main() {
         vector<Token> postfix = infixToPostfix(tokens);
         cout << "FORMAT: INFIX\n";
         cout << "POSTFIX: ";
-        for (const auto& t : postfix) {
-            cout << t.value << " ";
-        }
+        printTokens(postfix);
         cout << "\n";
         cout << "RESULT: " << evalPostfix(postfix) << "\n";
     }
