@@ -363,30 +363,41 @@ double evalPostfix(const vector<Token>& tokens) {
 // Main
 
 int main() {
-
     string line;
     getline(cin, line);
 
     vector<Token> tokens = tokenize(line);
 
+    // Early reject if tokenizer found invalid characters
     if (hasInvalidToken(tokens)) {
         cout << "FORMAT: NEITHER\n";
         cout << "ERROR: invalid expression\n";
         return 0;
     }
-    else if (isValidPostfix(tokens)) {
-        cout << "FORMAT: POSTFIX\n";
-        cout << "RESULT: " << evalPostfix(tokens) << "\n";
+
+    try {
+        if (isValidPostfix(tokens)) {
+            double result = evalPostfix(tokens);   // compute first
+            cout << "FORMAT: POSTFIX\n";
+            cout << "RESULT: " << result << "\n";
+        }
+        else if (isValidInfix(tokens)) {
+            vector<Token> postfix = infixToPostfix(tokens);
+
+            double result = evalPostfix(postfix);  // compute first
+
+            cout << "FORMAT: INFIX\n";
+            cout << "POSTFIX: ";
+            printTokens(postfix);
+            cout << "\n";
+            cout << "RESULT: " << result << "\n";
+        }
+        else {
+            cout << "FORMAT: NEITHER\n";
+            cout << "ERROR: invalid expression\n";
+        }
     }
-    else if (isValidInfix(tokens)) {
-        vector<Token> postfix = infixToPostfix(tokens);
-        cout << "FORMAT: INFIX\n";
-        cout << "POSTFIX: ";
-        printTokens(postfix);
-        cout << "\n";
-        cout << "RESULT: " << evalPostfix(postfix) << "\n";
-    }
-    else {
+    catch (const exception&) {
         cout << "FORMAT: NEITHER\n";
         cout << "ERROR: invalid expression\n";
     }
