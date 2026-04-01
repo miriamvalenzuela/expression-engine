@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cctype>
+#include <stdexcept>
+
 #include "ArrayStack.h"
 
 using namespace std;
@@ -23,6 +26,39 @@ bool isOpChar(char c) {
 
 bool isParenChar(char c) {
     return c == '(' || c == ')';
+}
+
+// Helpers
+
+bool isOperator(const string& s) {
+    return s == "+" || s == "-" || s == "*" || s == "/";
+}
+
+bool isNumber(const string& s) {
+    // If the string is empty, it can't be a number
+    if (s.empty()) {
+        return false;
+    }
+
+    // Check every character in the string
+    for (char c : s) {
+        // If any character is not a digit, it's not a number
+        if (!isdigit(static_cast<unsigned char>(c))) {
+            return false;
+        }
+    }
+
+    // All characters were digits, so it is a number
+    return true;
+}
+
+bool hasParenthesis(const vector<Token>& tokens) {
+    for (const Token& t : tokens) {
+        if (t.value == "(" || t.value == ")") {
+            return true;
+        }
+    }
+    return false;
 }
 
 vector<Token> tokenize(const string& line) {
@@ -61,31 +97,49 @@ vector<Token> tokenize(const string& line) {
         return tokens;
     }
 
-    return tokens;
-}
-
-// Helpers
-
-bool isOperator(const string& s) {
-    return s == "+" || s == "-" || s == "*" || s == "/";
-}
-
-bool isNumber(const string& s) {
-    // If the string is empty, it can't be a number
-    if (s.empty()) {
-        return false;
-    }
-
-    // Check every character in the string
-    for (char c : s) {
-        // If any character is not a digit, it's not a number
-        if (!isdigit(static_cast<unsigned char>(c))) {
-            return false;
+    // If there are no parentheses, don't try to insert implicit multiplication
+    // This prevents breaking valid postfix like: 3 4 2 * +
+    bool hasParen = false;
+    for (const Token& t : tokens) {
+        if (t.value == "(" || t.value == ")") {
+            hasParen = true;
+            break;
         }
     }
 
-    // All characters were digits, so it is a number
-    return true;
+    if (!hasParen) {
+        return tokens;
+    }
+
+    // Insert implicit multiplication when needed
+    vector<Token> withMult;
+
+    for (int j = 0; j < static_cast<int>(tokens.size()); j++) {
+        // Copy the current token into the new list
+        withMult.push_back(tokens[j]);
+
+        // If there is a next token, check if we need to insert "*"
+        if (j + 1 < static_cast<int>(tokens.size())) {
+            string current = tokens[j].value;
+            string next = tokens[j + 1].value;
+
+            bool leftCanMultiply = false;
+            if (isNumber(current) || current == ")") {
+                leftCanMultiply = true;
+            }
+
+            bool rightCanMultiply = false;
+            if (next == "(" || isNumber(next)) {
+                rightCanMultiply = true;
+            }
+
+            if (leftCanMultiply && rightCanMultiply) {
+                withMult.push_back(Token{"*"});
+            }
+        }
+    }
+
+    return withMult;
 }
 
 int precedence(const string& op) {

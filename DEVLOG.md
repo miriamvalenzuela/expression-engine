@@ -115,3 +115,24 @@ Then I double-checked evaluation only runs after validation is successful.
 
   **Fix / resolution (or final decision):** I added an early invalid-token check using `hasInvalidToken(tokens)` so invalid characters immediately print NEITHER. I updated postfix printing to use a helper (`printTokens`) to avoid trailing spaces. To prevent partial output during exceptions, I compute results before printing the `RESULT:` line and wrapped evaluation in a `try/catch`. Any exception (like division by zero) prints `FORMAT: NEITHER` and `ERROR: invalid expression` without crashing.  
   **Commit(s):** `fix: handle tricky cases and improve error safety`
+
+---
+
+### Entry 7
+**Date:** 2026-03-31 
+**Entry Type:** Bug Fix / Edge Case / Testing Entry  
+**Task worked on:** Supporting implicit multiplication in infix expressions (ex: `4(6+7)`)  
+**Issue or decision:** My professor considers expressions like `4(6+7)` valid infix, but my program originally classified them as NEITHER because there was no explicit `*` operator between the number and the parentheses. I needed to support implicit multiplication while still correctly handling postfix inputs.  
+**Error message / symptom (if applicable):**
+- Input: `4(6+7)` originally produced:  
+  `FORMAT: NEITHER` / `ERROR: invalid expression`  
+  After adding implicit multiplication insertion, postfix inputs like `3 4 2 * +` incorrectly became NEITHER because the tokenizer inserted extra `*` tokens between adjacent numbers.  
+
+
+**What I tried:** I first added logic in the tokenizer to insert `*` automatically when a number is followed by `(`, or when `)` is followed by a number/`(`. That fixed `4(6+7)`, but it broke valid postfix expressions because postfix has adjacent numbers like `3 4 2 ...` and my insertion rule triggered there too.  
+**Fix / resolution (or final decision):** I limited implicit multiplication insertion to only run when the token list contains parentheses. This keeps postfix expressions unchanged and still supports infix implicit multiplication. After the fix:
+- `4(6+7)` becomes tokens equivalent to `4 * ( 6 + 7 )` and evaluates correctly.
+- `3 4 2 * +` stays valid postfix and evaluates correctly. 
+
+
+  **Commit(s):** `fix: support implicit multiplication like 4(6+7) in infix`
