@@ -1,9 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <unordered_map>
-#include <cctype>
-
 #include "ArrayStack.h"
 
 using namespace std;
@@ -377,14 +374,14 @@ int main() {
 
     try {
         if (isValidPostfix(tokens)) {
-            double result = evalPostfix(tokens);   // compute first
+            double result = evalPostfix(tokens);   // Compute first
             cout << "FORMAT: POSTFIX\n";
             cout << "RESULT: " << result << "\n";
         }
         else if (isValidInfix(tokens)) {
             vector<Token> postfix = infixToPostfix(tokens);
 
-            double result = evalPostfix(postfix);  // compute first
+            double result = evalPostfix(postfix);  // Compute first
 
             cout << "FORMAT: INFIX\n";
             cout << "POSTFIX: ";

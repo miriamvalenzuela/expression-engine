@@ -98,3 +98,20 @@ Then I double-checked evaluation only runs after validation is successful.
 **Commit(s):** `implement infixToPostfix (Shunting Yard) using ArrayStack<Token>`
 
 ---
+
+### Entry 6
+**Date:** 2026-03-30   
+**Entry Type:** Bug Fix / Edge Case / Testing Entry  
+**Task worked on:** Final detection flow + strict output formatting + runtime safety in `main()`  
+**Issue or decision:** After implementing infix/postfix detection and evaluation, I needed the program to match the required output format exactly and not crash on runtime problems (especially division by zero). I also noticed formatting issues like printing a trailing space at the end of the `POSTFIX:` line.  
+**Error message / symptom (if applicable):** When testing `10 0 /`, the program initially printed `FORMAT: POSTFIX` and part of the `RESULT:` line before throwing an exception, which caused mixed output (partial result line followed by the NEITHER error). I also had a trailing space after the last postfix token when printing with `cout << t.value << " "`.  
+**What I tried:** I tested the required examples and edge cases:
+- Postfix valid: `3 4 2 * +`
+- Infix valid: `3 + 4 * 2`, `(3 + 4) * 2`
+- Neither: `3 + * 4`, `3 + @ 4`
+- Runtime error: `10 0 /`  
+  I compared my output line-by-line against the required format.  
+
+
+  **Fix / resolution (or final decision):** I added an early invalid-token check using `hasInvalidToken(tokens)` so invalid characters immediately print NEITHER. I updated postfix printing to use a helper (`printTokens`) to avoid trailing spaces. To prevent partial output during exceptions, I compute results before printing the `RESULT:` line and wrapped evaluation in a `try/catch`. Any exception (like division by zero) prints `FORMAT: NEITHER` and `ERROR: invalid expression` without crashing.  
+  **Commit(s):** `fix: handle tricky cases and improve error safety`
